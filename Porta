@@ -1,0 +1,46 @@
+import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+ 
+class Porta {
+    private final Lock lock = new ReentrantLock();
+    public void atravessar(int pessoaId) {
+        lock.lock();
+        try {
+            System.out.println("Pessoa " + pessoaId + " chegou à porta e está atravessando...");
+            int tempoParaAtravessar = new Random().nextInt(2) + 1; 
+            try {
+                Thread.sleep(tempoParaAtravessar * 1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            System.out.println("Pessoa " + pessoaId + " atravessou a porta!");
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+ 
+class Pessoa extends Thread {
+    private final int pessoaId;
+    private final Porta porta;
+    private final int distancia = 200;
+    private final Random random = new Random();
+    public Pessoa(int pessoaId, Porta porta) {
+        this.pessoaId = pessoaId;
+        this.porta = porta;
+    }
+    @Override
+    public void run() {
+        double velocidade = 4 + random.nextInt(3);
+        double tempoParaCaminhar = distancia / velocidade;
+        System.out.println("Pessoa " + pessoaId + " começou a caminhar pelo corredor a " + velocidade + " m/s.");
+        try {
+            Thread.sleep((long) (tempoParaCaminhar * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        porta.atravessar(pessoaId);
+    }
+}
+ 
